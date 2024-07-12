@@ -4,6 +4,7 @@ import { UserButton, useAuth } from "@clerk/nextjs";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const Topbar = () => {
   const {isSignedIn} =useAuth()
@@ -13,7 +14,7 @@ const Topbar = () => {
     { label: "Learning", path: "/learning" },
   ];
 
-  return (
+  return (  
     <div className="flex justify-between items-center p-4">
       <Link href="/">
         <Image src="/logo.png" height={100} width={200} alt="logo" />
@@ -35,13 +36,13 @@ const Topbar = () => {
             <Link
               key={route.path}
               href={route.path}
-              className="text-sm font-medium hover:text-[#FDAB04]"
+              className="text-sm font-medium hover:text-[ ]"
             >
               {route.label}
             </Link>
           ))}
         </div>
-          {isSignedIn?<UserButton afterSignOutUrl="/sign-in" /> :<Link href="/sign-in">Sign In</Link>}
+          {isSignedIn?<UserButton afterSignOutUrl="/sign-in" /> :<Link href="/sign-in"><Button>Sign In</Button></Link>}
           
       </div>
     </div>
