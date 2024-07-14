@@ -1,9 +1,9 @@
 "use client";
 
-import { Course } from "@prisma/client";
+import { Course, Section } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,13 +19,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
+import toast from "react-hot-toast";
+import SectionList from "@/components/sections/SectionList";
 
 const formSchema = z.object({
   title: z.string().min(2).max(50),
 });
 
-const CreateSectionForm = ({ course }: { course: Course }) => {
+const CreateSectionForm = ({ course }: { course: Course & {sections:Section[]}}) => {
   const pathname = usePathname();
+  const router =useRouter();
+
   const routes = [
     {
       label: "Basic Information",
@@ -42,12 +47,17 @@ const CreateSectionForm = ({ course }: { course: Course }) => {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+        const response=await axios.post(`/api/courses/${course.id}/sections`,values)
+        router.push(`/instructor/courses/${course.id}/sections/${response.data.id}`)
+        toast.success("Section created successfully")
+
+    } catch (err) {
+      console.log("error in section",err);
+      toast.error("Something went wrong")
+    }
+  };
 
   return (
     <div className="px-6">
@@ -62,6 +72,9 @@ const CreateSectionForm = ({ course }: { course: Course }) => {
           );
         })}
       </div>
+
+        <SectionList items={course.sections || []} />
+
 
       <h1 className="text-xl font-bold mt-5">Add New Section</h1>
       <Form {...form}>
