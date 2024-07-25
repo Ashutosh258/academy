@@ -22,14 +22,21 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import toast from "react-hot-toast";
 import SectionList from "@/components/sections/SectionList";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(2).max(50),
 });
 
-const CreateSectionForm = ({ course }: { course: Course & {sections:Section[]}}) => {
+ 
+
+const CreateSectionForm = ({
+  course
+}: {
+  course: Course & { sections: Section[] }
+}) => {
   const pathname = usePathname();
-  const router =useRouter();
+  const router = useRouter();
 
   const routes = [
     {
@@ -47,15 +54,33 @@ const CreateSectionForm = ({ course }: { course: Course & {sections:Section[]}})
     },
   });
 
+  const { isValid, isSubmitting } = form.formState;  
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-        const response=await axios.post(`/api/courses/${course.id}/sections`,values)
-        router.push(`/instructor/courses/${course.id}/sections/${response.data.id}`)
-        toast.success("Section created successfully")
-
+      const response = await axios.post(
+        `/api/courses/${course.id}/sections`,
+        values
+      );
+      router.push(
+        `/instructor/courses/${course.id}/sections/${response.data.id}`
+      );
+      toast.success("Section created successfully");
     } catch (err) {
-      console.log("error in section",err);
-      toast.error("Something went wrong")
+      console.log("error in section", err);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const onReorder = async (updateData: { id: string; position: number }[]) => {
+    try {
+      await axios.put(`/api/courses/${course.id}/sections/reorder`, {
+        list: updateData,
+      });
+      toast.success("Section reordered successfully");    
+    } catch (err) {
+      console.log("error in section", err);
+      toast.error("Something went wrong");
     }
   };
 
@@ -73,8 +98,13 @@ const CreateSectionForm = ({ course }: { course: Course & {sections:Section[]}})
         })}
       </div>
 
-        <SectionList items={course.sections || []} />
-
+      <SectionList
+        items={course.sections || []}
+        onReorder={onReorder}
+        onEdit={(id) =>
+          router.push(`/instructor/courses/${course.id}/sections/${id}`)
+        }
+      />
 
       <h1 className="text-xl font-bold mt-5">Add New Section</h1>
       <Form {...form}>
@@ -99,7 +129,13 @@ const CreateSectionForm = ({ course }: { course: Course & {sections:Section[]}})
                 Cancel
               </Button>
             </Link>
-            <Button type="submit">Create</Button>
+            <Button type="submit" disabled={!isValid || isSubmitting}>
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Create"
+              )}
+            </Button>
           </div>
         </form>
       </Form>
@@ -108,3 +144,5 @@ const CreateSectionForm = ({ course }: { course: Course & {sections:Section[]}})
 };
 
 export default CreateSectionForm;
+
+

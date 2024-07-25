@@ -25,6 +25,8 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { usePathname, useRouter } from "next/navigation";
 import { Trash } from "lucide-react";
+import Delete from "../custom/Delete";
+import PublishButton from "../custom/PublishButton";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -51,17 +53,16 @@ interface EditCourseFormProps {
     subCategories: { label: string; value: string }[];
   }[];
   levels: { label: string; value: string }[];
+  isCompleted: boolean;
 }
 const EditCourseForm = ({
   course,
   categories,
   levels,
+  isCompleted,
 }: EditCourseFormProps) => {
-
-
-  
   const router = useRouter();
-  const pathname=usePathname();
+  const pathname = usePathname();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -103,15 +104,24 @@ const EditCourseForm = ({
         <div className="flex gap-5">
           {routes.map((route) => {
             return (
-            <Link key={route.path} href={route.path} className="flex gap-4">
-             <Button variant={pathname === route.path ? "default":"outline"}>{route.label}</Button> 
-            </Link>
-          )
+              <Link key={route.path} href={route.path} className="flex gap-4">
+                <Button
+                  variant={pathname === route.path ? "default" : "outline"}
+                >
+                  {route.label}
+                </Button>
+              </Link>
+            );
           })}
         </div>
         <div className="flex gap-4 items-start">
-          <Button variant="outline">Publish</Button>
-          <Button><Trash className="h-4 w-4"/></Button>
+          <PublishButton
+            disabled={!isCompleted}
+            courseId={course.id}
+            isPublished={course.isPublished ?? false} 
+            page="Course"
+          />
+          <Delete item="course" courseId={course.id} />
         </div>
       </div>
       <Form {...form}>
@@ -234,6 +244,7 @@ const EditCourseForm = ({
                     value={field.value || ""}
                     onChange={(url) => field.onChange(url)}
                     endpoint="courseBanner"
+                    page="Edit Course"
                   />
                 </FormControl>
 

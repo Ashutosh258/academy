@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,7 @@ import { ComboBox } from "@/components/custom/ComboBox";
 
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -44,9 +45,7 @@ interface CreateCourseFormProps {
 }
 
 const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
-  
-
-  const router =useRouter()
+  const router = useRouter();
 
   // defining my form
 
@@ -58,16 +57,19 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
       subCategoryId: "",
     },
   });
+
+  const { isValid, isSubmitting } = form.formState;
+
   // 2. Define a submit handler.
- const onSubmit = async (values: z.infer<typeof formSchema>) => {
-      try {
-        const response =await axios.post("/api/courses", values);
-        router.push(`/instructor/courses/${response.data.id}/basic`)
-        toast.success("New Course Created")
-      } catch (err) {
-          console.log("failed to create new course",err);
-          toast.error("Failed to create new course")
-      }
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const response = await axios.post("/api/courses", values);
+      router.push(`/instructor/courses/${response.data.id}/basic`);
+      toast.success("New Course Created");
+    } catch (err) {
+      console.log("failed to create new course", err);
+      toast.error("Failed to create new course");
+    }
   };
 
   return (
@@ -90,7 +92,10 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
               <FormItem>
                 <FormLabel>title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ex: Web Development for Begineers" {...field} />
+                  <Input
+                    placeholder="Ex: Web Development for Begineers"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -118,14 +123,25 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
               <FormItem>
                 <FormLabel>Sub Category </FormLabel>
                 <FormControl>
-                  <ComboBox options={categories.find((category)=> category.value === form.watch("categoryId"))?.subCategories || []} {...field} />
+                  <ComboBox
+                    options={
+                      categories.find(
+                        (category) =>
+                          category.value === form.watch("categoryId")
+                      )?.subCategories || []
+                    }
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={!isValid || isSubmitting}>
+
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Create"}
+          </Button>
         </form>
       </Form>
     </div>

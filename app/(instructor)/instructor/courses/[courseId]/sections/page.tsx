@@ -18,7 +18,7 @@ const CourseCurriculumPage = async({params}:{params:{courseId:string}}) =>{
         include:{
             sections:{
                 orderBy:{
-                    position:"asc"
+                    position:"asc",  
                 } 
             }
         }
