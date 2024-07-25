@@ -28,10 +28,10 @@ const CourseCard = async ({ course }: { course: Course }) => {
         alt={course.title}
         width={500}
         height={300}
-        className="rounded-t-xl w-[500px] h-[180px] object-cover"
+        className="rounded-t-xl w-[320px] h-[180px] object-cover"
       />
       <div className="px-4 py-3 flex flex-col gap-2">
-        <h2 className="text-lg font bold hover:[#FDAB04]">{course.title}</h2>
+        <h2 className="text-lg font-bold hover:[#FDAB04]">{course.title}</h2>
         <div className="flex justify-between text-sm font-medium">
           {instructor && (
             <div className="flex gap-2 items-center">
@@ -48,17 +48,18 @@ const CourseCard = async ({ course }: { course: Course }) => {
                 height={30}
                 className="rounded-full"
               />
-              <span>{instructor.fullName}</span>
+              <p>{instructor.fullName}</p>
             </div>
           )}
           {level && (
-            <div>
+            <div className="flex gap-2">
               <Gem size={20} />
               <p>{level.name}</p>
             </div>
           )}
         </div>
-        <p className="text-sm font-bold">${course.price}</p>
+
+        <p className="text-sm font-bold">$ {course.price}</p>
       </div>
     </Link>
   );
