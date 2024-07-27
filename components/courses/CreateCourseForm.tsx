@@ -29,7 +29,7 @@ const formSchema = z.object({
     message: "Category is required",
   }),
   subCategoryId: z.string().min(1, {
-    message: "subCategory is required",
+    message: "SubCategory is required",
   }),
 });
 
@@ -47,8 +47,7 @@ interface CreateCourseFormProps {
 const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
   const router = useRouter();
 
-  // defining my form
-
+  // Defining my form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,14 +59,14 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
 
   const { isValid, isSubmitting } = form.formState;
 
-  // 2. Define a submit handler.
+  // Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post("/api/courses", values);
       router.push(`/instructor/courses/${response.data.id}/basic`);
       toast.success("New Course Created");
     } catch (err) {
-      console.log("failed to create new course", err);
+      console.log("Failed to create new course", err);
       toast.error("Failed to create new course");
     }
   };
@@ -75,10 +74,10 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
   return (
     <div className="p-10">
       <h1 className="text-xl font-bold">
-        Let give some basics for your course
+        Let's give some basics for your course
       </h1>
       <p className="text-sm mt-3">
-        Don't worry, you can change your title later too
+        Don&apos;t worry, you can change your title later too
       </p>
       <Form {...form}>
         <form
@@ -90,10 +89,10 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>title</FormLabel>
+                <FormLabel>Title</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Ex: Web Development for Begineers"
+                    placeholder="Ex: Web Development for Beginners"
                     {...field}
                   />
                 </FormControl>
@@ -107,7 +106,7 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
             name="categoryId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Category </FormLabel>
+                <FormLabel>Category</FormLabel>
                 <FormControl>
                   <ComboBox options={categories} {...field} />
                 </FormControl>
@@ -121,7 +120,7 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
             name="subCategoryId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sub Category </FormLabel>
+                <FormLabel>Sub Category</FormLabel>
                 <FormControl>
                   <ComboBox
                     options={
@@ -139,8 +138,7 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
           />
 
           <Button type="submit" disabled={!isValid || isSubmitting}>
-
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Create"}
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create"}
           </Button>
         </form>
       </Form>
