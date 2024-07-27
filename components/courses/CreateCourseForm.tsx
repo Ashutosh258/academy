@@ -74,7 +74,7 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
   return (
     <div className="p-10">
       <h1 className="text-xl font-bold">
-        Let's give some basics for your course
+        Let&apos;s  give some basics for your course
       </h1>
       <p className="text-sm mt-3">
         Don&apos;t worry, you can change your title later too
