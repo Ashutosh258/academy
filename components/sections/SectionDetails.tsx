@@ -16,12 +16,14 @@ import ReadText from "../custom/ReadText";
 import MuxPlayer from "@mux/mux-player-react";
 import Link from "next/link";
 import ProgressButton from "./ProgressButton";
+import SectionMenu from "../layout/SectionMenu";
+
 interface SectionDetailsProps {
-  course: Course;
+  course: Course & { sections: Section[] };
   section: Section;
   purchase: Purchase | null;
   muxData: MuxData | null;
-  resources: Resource[] | [];
+  resources: Resource[];
   progress: Progress | null;
 }
 
@@ -34,7 +36,7 @@ const SectionDetails = ({
   progress,
 }: SectionDetailsProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const isLock = !purchase && !section.isFree;
+  const isLocked = !purchase && !section.isFree;
 
   const buyCourse = async () => {
     try {
@@ -48,28 +50,36 @@ const SectionDetails = ({
       setIsLoading(false);
     }
   };
+
   return (
     <div className="px-6 py-4 flex flex-col gap-5">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center">
         <h1 className="text-2xl font-bold max-md:mb-4">{section.title}</h1>
-        {!purchase ? (
-          <Button onClick={buyCourse}>
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <p>Buy this course</p>
-            )}
-          </Button>
-        ) : (
-          <ProgressButton courseId={course.id} sectionId={section.id} isCompleted={!!progress?.isCompleted}/>
-        )}
+        <div className="flex justify-between">
+          <SectionMenu course={course} />
+          {!purchase ? (
+            <Button onClick={buyCourse}>
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <p>Buy this course</p>
+              )}
+            </Button>
+          ) : (
+            <ProgressButton
+              courseId={course.id}
+              sectionId={section.id}
+              isCompleted={!!progress?.isCompleted}
+            />
+          )}
+        </div>
       </div>
       <ReadText value={section.description!} />
-      {isLock ? (
+      {isLocked ? (
         <div className="px-10 flex flex-col gap-5 items-center bg-[#FFF8EB]">
           <Lock className="h-8 w-8" />
           <p className="text-sm font bold">
-            Video for this section is locked!. Please buy this course to access
+            Video for this section is locked! Please buy this course to access.
           </p>
         </div>
       ) : (
@@ -82,16 +92,17 @@ const SectionDetails = ({
         <h2 className="text-xl font-bold mb-5">Resources</h2>
         {resources.map((resource) => (
           <Link
+            key={resource.id} // Added key for list rendering
             href={resource.fileUrl}
             target="_blank"
-            className="flex items-center bg-[#FFF8EB] rounded-lg text-sm font-medium p-3 "
+            className="flex items-center bg-[#FFF8EB] rounded-lg text-sm font-medium p-3"
           >
             <File className="h-4 w-4 mr-4" />
             {resource.name}
           </Link>
         ))}
       </div>
-    </div> 
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
 import SectionDetails from "@/components/sections/SectionDetails";
-import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { Resource } from "@prisma/client";
@@ -20,7 +19,6 @@ const SectionDetailsPage = async ({
   const course = await db.course.findUnique({
     where: {
       id: courseId,
-      isPublished: true,
     },
     include: {
       sections: {
@@ -31,19 +29,18 @@ const SectionDetailsPage = async ({
     },
   });
 
-  if (!course) {
+  if (!course || !course.isPublished) {
     return redirect("/");
   }
 
   const section = await db.section.findUnique({
     where: {
       id: sectionId,
-      courseId,
-      isPublished: true,
+      courseId: courseId,
     },
   });
 
-  if (!section) {
+  if (!section || !section.isPublished) {
     return redirect(`/courses/${courseId}/overview`);
   }
 
@@ -51,7 +48,7 @@ const SectionDetailsPage = async ({
     where: {
       customerId_courseId: {
         customerId: userId,
-        courseId,
+        courseId: courseId,
       },
     },
   });
@@ -59,35 +56,51 @@ const SectionDetailsPage = async ({
   let muxData = null;
   let resources: Resource[] = [];
 
-
-  if(section.isFree || purchase){
+  if (section.isFree || purchase) {
     muxData = await db.muxData.findUnique({
       where: {
-        sectionId,
+        sectionId: sectionId,
       },
     });
   }
 
-  if(purchase){
-    resources=await db.resource.findMany({
-      where:{
-        sectionId,
-      }
-    })
+  if (purchase) {
+    resources = await db.resource.findMany({
+      where: {
+        sectionId: sectionId,
+      },
+    });
   }
-  
+
   const progress = await db.progress.findUnique({
     where: {
       studentId_sectionId: {
         studentId: userId,
-        sectionId,
+        sectionId: sectionId,
       },
     },
   });
 
+  // Ensure course has the necessary fields as per the SectionDetailsProps type
+  const courseWithSections = {
+    ...course,
+    sections: course.sections.map((sec) => ({
+      id: sec.id,
+      title: sec.title,
+      description: sec.description,
+      videoUrl: sec.videoUrl,
+      position: sec.position,
+      isPublished: sec.isPublished,
+      isFree: sec.isFree,
+      courseId: sec.courseId,
+      createdAt: sec.createdAt,
+      updatedAt: sec.updatedAt,
+    })),
+  };
+
   return (
     <SectionDetails
-      course={course}
+      course={courseWithSections}
       section={section}
       muxData={muxData}
       purchase={purchase}
